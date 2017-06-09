@@ -1,0 +1,20 @@
+language: python
+cache: pip
+python:
+  - 2.6
+  - 2.7
+services: mysql
+before_install:
+  # Set up MySQL databases and cross section user
+  - mysql -u root -e 'CREATE DATABASE cross_sections';
+  - mysql -u root -e "CREATE USER 'crosssec'@'localhost' IDENTIFIED BY 'test';"
+  - mysql -u root -e "GRANT ALL ON cross_sections.* TO 'crosssec'@'localhost';"
+install:
+  # Set up schema
+  - mysql --defaults-file=test/my.cnf -Dcross_sections < db/cross_sections.sql;
+  - pip install -r requirements.txt
+before_script:
+  # Update with [mysql-dynamo] entry in my.cnf
+  - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
+  - sudo service mysql restart
+script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python XSECCONF=/etc/mysql/my.cnf test/run_tests.sh
