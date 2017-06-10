@@ -110,5 +110,16 @@ class TestInsertRead(unittest.TestCase):
         for value in stored:
             self.assertTrue(value)
 
+    def test_update_existing(self):
+        """
+        Make sure that updating existing entry works
+        """
+        inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!')
+        self.assertEqual(reader.get_xsec('TestDataset'), 10.0)
+
+        inserter.put_xsec('TestDataset', 11.0, 'test')
+        self.assertEqual(reader.get_xsec('TestDataset'), 11.0)
+
+
 if __name__ == '__main__':
     unittest.main()

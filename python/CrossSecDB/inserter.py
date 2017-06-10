@@ -42,7 +42,7 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
     conn = XSecConnection(write=True, cnf=cnf)
 
     statement = """
-                INSERT INTO xs_{0}TeV (sample, cross_section, last_updated, source, comments)
+                REPLACE INTO xs_{0}TeV (sample, cross_section, last_updated, source, comments)
                 VALUES (%s, %s, NOW(), %s, %s)
                 """.format(energy)
     
