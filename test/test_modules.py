@@ -7,16 +7,15 @@ import MySQLdb
 from CrossSecDB import inserter
 from CrossSecDB import reader
 
-# TODO: Finish writing tests
-
 class TestInsertRead(unittest.TestCase):
+
+    cnf = os.environ.get('XSECCONF', os.path.join(os.path.dirname(__file__), 'my.cnf'))
 
     def setUp(self):
         """
         At the beginning of each test, start with a fresh database
         """
-        conn = MySQLdb.connect(read_default_file=\
-                                   os.environ.get('XSECCONF', os.path.join(os.path.dirname(__file__), 'my.cnf')),
+        conn = MySQLdb.connect(read_default_file=self.cnf,
                                read_default_group='mysql-crosssec-writer',
                                db='cross_sections')
 
@@ -54,27 +53,62 @@ class TestInsertRead(unittest.TestCase):
         This is to test that an exception is raised
         when someone puts in a negative cross section
         """
-        pass
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNeg', -1.0, 'test')
 
     def test_other_energy(self):
         """
         This is a test to check that the non-default
         energy tables work as intended.
         """
-        pass
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestBadEnergy', 1.0, 'test', energy=4)
+
+        inserter.put_xsec('TestDataSet', 45.0, 'test', energy=8)
+        self.assertEqual(reader.get_xsec('TestDataSet', energy=8), 45.0)
 
     def test_no_source(self):
         """
         When someone doesn't supply a source for their
         cross section the insertion should fail
         """
-        pass
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNoSourceDocumented', 1.0, '')
 
+    def test_no_dataset(self):
+        """
+        Exception is raised when a dataset doesn't exist
+        """
+        self.assertRaises(reader.NoMatchingDataset, reader.get_xsec, 'FakeDataset')
+
+    def test_mismatched_lists(self):
+        """
+        Make sure bad stuff happens when the list lengths don't match
+        """
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'Test', [1.0, 5.0], 'test', cnf='fake_cnf_does_not_exist.false')
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, ['Test1', 'Test2', 'Test3'], [1.0, 5.0], 'test', cnf='fake_cnf_does_not_exist.false')
+
+    def test_no_cnf_file(self):
+        """
+        Test that reasonable error is given when config file isn't found
+        """
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestGone', 1.0, 'test', cnf='fake_cnf_does_not_exist.false')
+        
     def test_all_fields_full(self):
         """
         Just check that the date, source, and comments fields are correctly filled.
         """
-        pass
+        inserter.put_xsec('TestDataset', 10.0, 'test', 'Here is a comment')
+
+        conn = MySQLdb.connect(read_default_file=self.cnf,
+                               read_default_group='mysql-crosssec-reader',
+                               db='cross_sections')
+        curs = conn.cursor()
+        curs.execute('SELECT sample, cross_section, last_updated, source, comments FROM xs_13TeV')
+
+        stored = curs.fetchone()
+
+        conn.close()
+
+        for value in stored:
+            self.assertTrue(value)
 
 if __name__ == '__main__':
     unittest.main()
