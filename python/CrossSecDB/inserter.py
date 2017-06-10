@@ -1,6 +1,9 @@
 import os
+import logging
 
 from . import XSecConnection
+
+logger = logging.getLogger(__name__)
 
 class BadInput(Exception):
     pass
@@ -45,5 +48,7 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
                 REPLACE INTO xs_{0}TeV (sample, cross_section, last_updated, source, comments)
                 VALUES (%s, %s, NOW(), %s, %s)
                 """.format(energy)
+
+    logger.debug('About to execute\n%s\nwith\n%s', statement, many_input)
     
     conn.curs.executemany(statement, many_input)

@@ -1,4 +1,8 @@
+import logging
+
 from . import XSecConnection
+
+logger = logging.getLogger(__name__)
 
 class NoMatchingDataset(Exception):
     pass
@@ -20,8 +24,11 @@ def get_xsec(samples, cnf=None, energy=13):
     output = []
 
     for sample in samples:
-        conn.curs.execute('SELECT cross_section FROM xs_%sTeV WHERE sample=%s',
-                          (energy, sample))
+        query = 'SELECT cross_section FROM xs_%sTeV WHERE sample=%s'
+        params = (energy, sample)
+
+        logger.debug('About to execute\n%s\nwith\n%s', query, params)
+        conn.curs.execute(query, params)
 
         check = conn.curs.fetchone()
 

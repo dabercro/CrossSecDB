@@ -3,9 +3,17 @@
 import os
 import unittest
 import MySQLdb
+import logging
 
 from CrossSecDB import inserter
 from CrossSecDB import reader
+
+# This is temporary until the test passes
+
+if os.environ.get('TRAVIS'):
+    logging.basicConfig(level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
 
 class TestInsertRead(unittest.TestCase):
 
@@ -26,6 +34,7 @@ class TestInsertRead(unittest.TestCase):
             for line in \
                     ''.join([line.strip() for line in sql_file if line[:2] != '--']).split(';'):
                 if line:
+                    logger.debug('About to execute line:\n%s', line)
                     curs.execute(line)
 
         conn.close()
@@ -37,15 +46,15 @@ class TestInsertRead(unittest.TestCase):
         appropriately.
         """
         # We can put in cross sections one at a time
-        inserter.put_xsec('TestDataSet', 45.0, 'test')
-        self.assertEqual(reader.get_xsec('TestDataSet'), 45.0)
+        inserter.put_xsec('TestDataset', 45.0, 'test')
+        self.assertEqual(reader.get_xsec('TestDataset'), 45.0)
 
         # We can also put in parallel lists
         inserter.put_xsec(['Test1', 'Test2'], [10.0, 20.0], 'test')
         self.assertEqual(reader.get_xsec('Test1'), 10.0)
         self.assertEqual(reader.get_xsec('Test2'), 20.0)
 
-        self.assertEqual(reader.get_xsec(['TestDataSet', 'Test1', 'Test2']),
+        self.assertEqual(reader.get_xsec(['TestDataset', 'Test1', 'Test2']),
                          [45.0, 10.0, 20.0])
 
     def test_negative_xsec(self):
@@ -62,8 +71,8 @@ class TestInsertRead(unittest.TestCase):
         """
         self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestBadEnergy', 1.0, 'test', energy=4)
 
-        inserter.put_xsec('TestDataSet', 45.0, 'test', energy=8)
-        self.assertEqual(reader.get_xsec('TestDataSet', energy=8), 45.0)
+        inserter.put_xsec('TestDataset', 45.0, 'test', energy=8)
+        self.assertEqual(reader.get_xsec('TestDataset', energy=8), 45.0)
 
     def test_no_source(self):
         """

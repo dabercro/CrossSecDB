@@ -19,4 +19,4 @@ before_script:
   # Update with [mysql-dynamo] entry in my.cnf
   - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
   - sudo service mysql restart
-script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python XSECCONF=/etc/mysql/my.cnf test/run_tests.sh
+script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python XSECCONF=`pwd`/test/my.cnf test/run_tests.sh
