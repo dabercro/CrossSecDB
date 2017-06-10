@@ -10,9 +10,6 @@ from CrossSecDB import reader
 
 # This is temporary until the test passes
 
-if os.environ.get('TRAVIS'):
-    logging.basicConfig(level=logging.DEBUG)
-
 logger = logging.getLogger(__name__)
 
 class TestInsertRead(unittest.TestCase):

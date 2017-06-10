@@ -52,3 +52,4 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
     logger.debug('About to execute\n%s\nwith\n%s', statement, many_input)
     
     conn.curs.executemany(statement, many_input)
+    conn.conn.commit()
