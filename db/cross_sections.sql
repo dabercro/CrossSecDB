@@ -7,8 +7,8 @@ CREATE TEMPORARY TABLE template (
   cross_section DOUBLE UNSIGNED,
   last_updated DATETIME,
   source VARCHAR(511) NOT NULL,
-  comments VARCHAR(767)
-);
+  comments BLOB
+) ENGINE=MYISAM;
 
 --
 -- TODO: Rename existing tables into backups instead of dropping them, just in case
