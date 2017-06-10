@@ -4,6 +4,9 @@ This repository holds tools for centralized updating and fetching of cross secti
 Analyses throughout CMS have a variety of formats for storing their Monte Carlos cross sections.
 This is an attempt to store these cross sections in a clean, machine-friendly, and documented way.
 
+To access the Python modules, place ``CrossSecDB/python`` in your ``$PYTHONPATH``.
+To access CLIs provided, place ``CrossSecDB/bin`` in your ``$PATH``.
+
 ## Reading Cross Sections
 
 The main motivation for this repository is to provide an exceptionally lazy tool to find cross sections.
@@ -41,7 +44,18 @@ for addition, up to date documentation.
 
 ### Python script
 
-TODO
+For those that like dumping things with system calls or just checking interactively, a command line interface is also available.
+It's used just as desired in the motivation section above:
+
+    $ get_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+    61527.0
+
+    $ get_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1
+    61527.0
+    35.85
+
+More usage information (like how to access alternate energies) can be gathered by
+calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
 
 ### C++ header file
 
@@ -79,7 +93,12 @@ From the docstring, you might learn that parallel lists work as well:
 
     put_xsec(samples, xs, '/home/dhsu/CMSSW_8_0_26_patch1/src/PandaCore/Tools/python/processes.py')
 
-Easy!
+Easy! There's also a command line interface that can be used the following way:
+
+    put_xs.py "README from this repo" WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 61527.0
+
+More usage information (like how to access alternate energies) can be gathered by
+calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
 
 ## Contributing
 
