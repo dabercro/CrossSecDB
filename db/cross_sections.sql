@@ -1,5 +1,5 @@
 --
--- TODO: Create trigger that prevents source from being emtpy (because we are naughty when it comes to docs)
+-- TODO: Create trigger that prevents source from being empty (because we are naughty when it comes to docs)
 --
 
 CREATE TEMPORARY TABLE template (

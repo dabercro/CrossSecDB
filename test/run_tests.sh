@@ -2,11 +2,13 @@
 
 TESTDIR=`dirname $0`
 
+export XSECCONF=$TESTDIR/my.cnf
+
 COUNTFAIL=0
 
 # Run all the test scripts in the test directory
 
-for TESTSCRIPT in $TESTDIR/test_*
+for TESTSCRIPT in $TESTDIR/test_*.??
 do
 
     mysql --defaults-file=$TESTDIR/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < $TESTDIR/../db/cross_sections.sql
