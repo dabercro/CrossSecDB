@@ -13,7 +13,7 @@ before_install:
   - mysql -u root -e "GRANT ALL ON cross_sections.* TO 'crosssec_writer'@'localhost';"
 install:
   # Set up schema
-  - mysql --defaults-file=test/my.cnf -Dcross_sections < db/cross_sections.sql;
+  - mysql --defaults-file=test/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < db/cross_sections.sql;
   - pip install -r requirements.txt
 before_script:
   # Update with [mysql-dynamo] entry in my.cnf

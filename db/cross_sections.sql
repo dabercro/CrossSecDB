@@ -7,7 +7,7 @@ CREATE TEMPORARY TABLE template (
   cross_section DOUBLE UNSIGNED,
   last_updated DATETIME,
   source VARCHAR(511) NOT NULL,
-  comments VARCHAR(4095)
+  comments BLOB
 );
 
 --
