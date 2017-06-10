@@ -4,8 +4,12 @@ This repository holds tools for centralized updating and fetching of cross secti
 Analyses throughout CMS have a variety of formats for storing their Monte Carlos cross sections.
 This is an attempt to store these cross sections in a clean, machine-friendly, and documented way.
 
-To access the Python modules, place ``CrossSecDB/python`` in your ``$PYTHONPATH``.
+To access the Python tools, place ``CrossSecDB/python`` in your ``$PYTHONPATH``.
 To access CLIs provided, place ``CrossSecDB/bin`` in your ``$PATH``.
+In addition, the ``MySQLdb`` Python package must be installed on the machine you are using.
+If it's not installed, you can always add it with:
+
+    pip install -r CrossSecDB/requirements.txt
 
 ## Reading Cross Sections
 
@@ -20,7 +24,8 @@ instead of clicking around Sid's GitHub repos, I would like to type:
 
 In addition to a Python Command Line Interface (in progress), functions in Python modules are provided for use.
 
-C++ header and PHP cUrl/browser interface planned as well for anyone who wants their analysis code to access information on the fly.
+C++ header and PHP cUrl/browser interface planned as well for anyone who wants their analysis code to access information on the fly
+or from outside the Tier-3.
 
 ### Python module
 
@@ -93,9 +98,11 @@ From the docstring, you might learn that parallel lists work as well:
 
     put_xsec(samples, xs, '/home/dhsu/CMSSW_8_0_26_patch1/src/PandaCore/Tools/python/processes.py')
 
-Easy! There's also a command line interface that can be used the following way:
+Easy!
 
-    put_xs.py "README from this repo" WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 61527.0
+There's also a command line interface that can be used the following way:
+
+    put_xs.py "Source is README from this repo" WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 61527.0
 
 More usage information (like how to access alternate energies) can be gathered by
 calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
@@ -105,3 +112,5 @@ calling the script without any arguments or with ``-h`` or ``--help`` as the fir
 The easiest way to find improvements that need to be made is the following:
 
     grep -R "TODO" .
+
+Please write tests to prove that what you wrote works.
