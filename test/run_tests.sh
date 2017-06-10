@@ -1,5 +1,9 @@
 #! /bin/bash
 
+#
+# Author: Daniel Abercrombie <dabercro@mit.edu>
+#
+
 TESTDIR=`dirname $0`
 
 export XSECCONF=$TESTDIR/my.cnf

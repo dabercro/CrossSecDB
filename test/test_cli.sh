@@ -1,5 +1,9 @@
 #! /bin/bash
 
+#
+# Author: Daniel Abercrombie <dabercro@mit.edu>
+#
+
 ERRORS=0
 
 # First, let's make sure querying for fake stuff doesn't work

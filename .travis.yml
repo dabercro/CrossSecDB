@@ -1,5 +1,11 @@
 language: python
 cache: pip
+addons:
+  apt:
+    packages:
+      - php5
+      - php5-cli
+      - php5-mysql
 python:
   - 2.6
   - 2.7

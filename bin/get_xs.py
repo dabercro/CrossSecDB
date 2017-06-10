@@ -17,6 +17,10 @@ To change energies, set the environment variable $ENERGY to something different.
 Example:
 
   XSECCONF=$HOME/my.cnf ENERGY=8 get_xs.py sample_i_definitely_stored_elsewhere
+
+Author:
+
+  Daniel Abercrombie <dabercro@mit.edu>
 """
 
 import os
