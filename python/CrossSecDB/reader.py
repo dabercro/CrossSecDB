@@ -48,7 +48,7 @@ def get_xsec(samples, cnf=None, energy=13):
         check = conn.curs.fetchone()
 
         if check is None:
-            raise NoMatchingDataset('No matching dataset found for sample %s at energy %s' % (sample, energy))
+            raise NoMatchingDataset('No matching dataset found for sample %s at energy %s TeV' % (sample, energy))
 
         output.append(check[0])
 
