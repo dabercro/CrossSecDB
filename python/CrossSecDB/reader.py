@@ -1,3 +1,7 @@
+"""
+Author: Daniel Abercrombie <dabercro@mit.edu>
+"""
+
 import logging
 
 from . import XSecConnection

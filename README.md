@@ -22,10 +22,10 @@ instead of clicking around Sid's GitHub repos, I would like to type:
 
 (Result is according to PandaCore at the time of writing.)
 
-In addition to a Python Command Line Interface (in progress), functions in Python modules are provided for use.
+In addition to a Python Command Line Interface, functions in Python modules are provided for use.
+A curl interface is also available for anyone who wants their analysis code to access information from outside the Tier-3.
 
-C++ header and PHP cUrl/browser interface planned as well for anyone who wants their analysis code to access information on the fly
-or from outside the Tier-3.
+A C++ header interface is planned as well for anyone who wants their analysis code to access information on the fly.
 
 ### Python module
 
@@ -62,13 +62,29 @@ It's used just as desired in the motivation section above:
 More usage information (like how to access alternate energies) can be gathered by
 calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
 
-### C++ header file
-
-TODO
-
 ### Web API
 
-TODO
+Centralized cross sections can also be accessed from anywhere over the internet.
+A webpage is available at the link at the top of the central repository.
+
+In addition, a machine-friendly curl interface has been implimented.
+This is used the same way as ``get_xs.py``:
+
+    $ web_get_xs.sh WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+    61527
+
+    $ web_get_xs.sh WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1
+    61527
+    35.85
+
+Note that when compared to ``get_xs.py``, this interface truncates trailing 0s after the decimal.
+
+More usage information (like how to access alternate energies) can be gathered by
+calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
+
+### C++ header file
+
+TODO: Create C++ header and tests
 
 ## Updating Cross Sections
 
@@ -109,7 +125,7 @@ calling the script without any arguments or with ``-h`` or ``--help`` as the fir
 
 ## Contributing
 
-The easiest way to find improvements that need to be made is the following:
+Immediate improvements can be found the following way:
 
     grep -R "TODO" .
 

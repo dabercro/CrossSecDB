@@ -1,3 +1,7 @@
+"""
+Author: Daniel Abercrombie <dabercro@mit.edu>
+"""
+
 import os
 import logging
 
