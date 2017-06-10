@@ -3,11 +3,11 @@
 --
 
 CREATE TEMPORARY TABLE template (
-  sample VARCHAR(511) PRIMARY KEY,
+  sample VARCHAR(144) PRIMARY KEY,
   cross_section DOUBLE UNSIGNED,
   last_updated DATETIME,
-  source VARCHAR(511) NOT NULL,
-  comments VARCHAR(4095)
+  source VARCHAR(512) NOT NULL,
+  comments VARCHAR(2048)
 );
 
 --

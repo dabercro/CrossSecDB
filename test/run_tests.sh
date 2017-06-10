@@ -9,6 +9,7 @@ COUNTFAIL=0
 for TESTSCRIPT in $TESTDIR/test_*
 do
 
+    mysql --defaults-file=$TESTDIR/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < $TESTDIR/../db/cross_sections.sql
     $TESTSCRIPT
 
     # Check the results
@@ -17,13 +18,17 @@ do
     then
 
         COUNTFAIL=$((COUNTFAIL + 1))
+        tput setaf 1 2> /dev/null
         echo "FAILED: $TESTSCRIPT"
 
     else
 
+        tput setaf 2 2> /dev/null
         echo "PASSED: $TESTSCRIPT"
 
     fi
+
+    tput sgr0 2> /dev/null
 
 done
 

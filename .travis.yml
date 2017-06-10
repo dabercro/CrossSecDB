@@ -7,14 +7,16 @@ services: mysql
 before_install:
   # Set up MySQL databases and cross section user
   - mysql -u root -e 'CREATE DATABASE cross_sections';
-  - mysql -u root -e "CREATE USER 'crosssec'@'localhost' IDENTIFIED BY 'test';"
-  - mysql -u root -e "GRANT ALL ON cross_sections.* TO 'crosssec'@'localhost';"
+  - mysql -u root -e "CREATE USER 'crosssec_reader'@'localhost' IDENTIFIED BY 'test_reader';"
+  - mysql -u root -e "CREATE USER 'crosssec_writer'@'localhost' IDENTIFIED BY 'test_writer';"
+  - mysql -u root -e "GRANT SELECT ON cross_sections.* TO 'crosssec_reader'@'localhost';"
+  - mysql -u root -e "GRANT ALL ON cross_sections.* TO 'crosssec_writer'@'localhost';"
 install:
   # Set up schema
-  - mysql --defaults-file=test/my.cnf -Dcross_sections < db/cross_sections.sql;
+  - mysql --defaults-file=test/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < db/cross_sections.sql;
   - pip install -r requirements.txt
 before_script:
   # Update with [mysql-dynamo] entry in my.cnf
   - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
   - sudo service mysql restart
-script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python XSECCONF=/etc/mysql/my.cnf test/run_tests.sh
+script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python XSECCONF=`pwd`/test/my.cnf test/run_tests.sh
