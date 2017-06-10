@@ -11,6 +11,21 @@ def get_xsec(samples, cnf=None, energy=13):
     """
     Get the cross sections from the central database.
     Can be a list or a single sample.
+
+    Parameters:
+    -----------
+      samples (list or str) - A list of samples or a single sample to get cross sections for.
+
+      cnf (str) - Location of the MySQL connection configuration file.
+                  (default None, see XSecConnection.__init__)
+
+      energy (int) - Energy to determine the table to look up cross sections from.
+                     (default 13)
+
+    Returns:
+    --------
+      By default, a list of cross sections, parallel to the list of samples.
+      If the list is only one element long, or samples was not a list, just a float is returned.
     """
 
     if not isinstance(samples, list):

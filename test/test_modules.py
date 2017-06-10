@@ -43,15 +43,15 @@ class TestInsertRead(unittest.TestCase):
         appropriately.
         """
         # We can put in cross sections one at a time
-        inserter.put_xsec('TestDataset', 45.0, 'test')
-        self.assertEqual(reader.get_xsec('TestDataset'), 45.0)
+        inserter.put_xsec('TestDataset', 45.0, 'test', cnf=self.cnf)
+        self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf), 45.0)
 
         # We can also put in parallel lists
-        inserter.put_xsec(['Test1', 'Test2'], [10.0, 20.0], 'test')
-        self.assertEqual(reader.get_xsec('Test1'), 10.0)
-        self.assertEqual(reader.get_xsec('Test2'), 20.0)
+        inserter.put_xsec(['Test1', 'Test2'], [10.0, 20.0], 'test', cnf=self.cnf)
+        self.assertEqual(reader.get_xsec('Test1', cnf=self.cnf), 10.0)
+        self.assertEqual(reader.get_xsec('Test2', cnf=self.cnf), 20.0)
 
-        self.assertEqual(reader.get_xsec(['TestDataset', 'Test1', 'Test2']),
+        self.assertEqual(reader.get_xsec(['TestDataset', 'Test1', 'Test2'], cnf=self.cnf),
                          [45.0, 10.0, 20.0])
 
     def test_negative_xsec(self):
@@ -59,37 +59,37 @@ class TestInsertRead(unittest.TestCase):
         This is to test that an exception is raised
         when someone puts in a negative cross section
         """
-        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNeg', -1.0, 'test')
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNeg', -1.0, 'test', cnf=self.cnf)
 
     def test_other_energy(self):
         """
         This is a test to check that the non-default
         energy tables work as intended.
         """
-        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestBadEnergy', 1.0, 'test', energy=4)
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestBadEnergy', 1.0, 'test', energy=4, cnf=self.cnf)
 
-        inserter.put_xsec('TestDataset', 45.0, 'test', energy=8)
-        self.assertEqual(reader.get_xsec('TestDataset', energy=8), 45.0)
+        inserter.put_xsec('TestDataset', 45.0, 'test', energy=8, cnf=self.cnf)
+        self.assertEqual(reader.get_xsec('TestDataset', energy=8, cnf=self.cnf), 45.0)
 
     def test_no_source(self):
         """
         When someone doesn't supply a source for their
         cross section the insertion should fail
         """
-        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNoSourceDocumented', 1.0, '')
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'TestNoSourceDocumented', 1.0, '', cnf=self.cnf)
 
     def test_no_dataset(self):
         """
         Exception is raised when a dataset doesn't exist
         """
-        self.assertRaises(reader.NoMatchingDataset, reader.get_xsec, 'FakeDataset')
+        self.assertRaises(reader.NoMatchingDataset, reader.get_xsec, 'FakeDataset', cnf=self.cnf)
 
     def test_mismatched_lists(self):
         """
         Make sure bad stuff happens when the list lengths don't match
         """
-        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'Test', [1.0, 5.0], 'test', cnf='fake_cnf_does_not_exist.false')
-        self.assertRaises(inserter.BadInput, inserter.put_xsec, ['Test1', 'Test2', 'Test3'], [1.0, 5.0], 'test', cnf='fake_cnf_does_not_exist.false')
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, 'Test', [1.0, 5.0], 'test', cnf=self.cnf)
+        self.assertRaises(inserter.BadInput, inserter.put_xsec, ['Test1', 'Test2', 'Test3'], [1.0, 5.0], 'test', cnf=self.cnf)
 
     def test_no_cnf_file(self):
         """
@@ -101,7 +101,7 @@ class TestInsertRead(unittest.TestCase):
         """
         Just check that the date, source, and comments fields are correctly filled.
         """
-        inserter.put_xsec('TestDataset', 10.0, 'test', 'Here is a comment')
+        inserter.put_xsec('TestDataset', 10.0, 'test', 'Here is a comment', cnf=self.cnf)
 
         conn = MySQLdb.connect(read_default_file=self.cnf,
                                read_default_group='mysql-crosssec-reader',
@@ -120,11 +120,11 @@ class TestInsertRead(unittest.TestCase):
         """
         Make sure that updating existing entry works
         """
-        inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!')
-        self.assertEqual(reader.get_xsec('TestDataset'), 10.0)
+        inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!', cnf=self.cnf)
+        self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf), 10.0)
 
-        inserter.put_xsec('TestDataset', 11.0, 'test')
-        self.assertEqual(reader.get_xsec('TestDataset'), 11.0)
+        inserter.put_xsec('TestDataset', 11.0, 'test', cnf=self.cnf)
+        self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf), 11.0)
 
 
 if __name__ == '__main__':

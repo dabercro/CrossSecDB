@@ -13,6 +13,25 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
     Places samples with parallel list, cross_sections into database.
     Source of the cross sections must be given.
     Comments are optional, but can be useful.
+
+    Parameters:
+    -----------
+      samples (list or str) - A sample or list of samples to update the cross sections for.
+
+      cross_sections (list or float) - A cross section or list of cross sections.
+                                       If a list, it must be parallel to the samples list.
+
+      source (str) - Documentation of where the cross section value came from.
+                     Cannot be blank.
+
+      comments (str) - Additional comments.
+                       (default blank)
+
+      cnf (str) - Location of the MySQL connection configuration file.
+                  (default None, see XSecConnection.__init__)
+
+      energy (int) - Energy to determine the table to insert the cross sections into.
+                     (default 13)
     """
 
     # Pass lists to keep rest of logic clean
