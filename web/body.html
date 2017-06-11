@@ -25,9 +25,13 @@
       if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
 
+          $cross_sec_string = (string)$row['cross_section'];
+          if (strpos($cross_sec_string, '.') !== false && strpos($cross_sec_string, 'e') === false)
+            $cross_sec_string = rtrim($cross_sec_string, '0');
+
           if ($sample === '' or preg_match('/' . $sample . '/', $row['sample']))
             printf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
-                   $row['sample'], rtrim($row['cross_section'], "0"), $row['last_updated'],
+                   $row['sample'], $cross_sec_string, $row['last_updated'],
                    $row['source'], $row['comments']);
         }
       }
