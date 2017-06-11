@@ -11,18 +11,19 @@ python:
   - 2.7
 services: mysql
 before_install:
-  # Set up MySQL databases and cross section user
+  # Set up MySQL databases and cross section users
   - mysql -u root -e 'CREATE DATABASE cross_sections';
   - mysql -u root -e "CREATE USER 'crosssec_reader'@'localhost' IDENTIFIED BY 'test_reader';"
   - mysql -u root -e "CREATE USER 'crosssec_writer'@'localhost' IDENTIFIED BY 'test_writer';"
   - mysql -u root -e "GRANT SELECT ON cross_sections.* TO 'crosssec_reader'@'localhost';"
+  # Production doesn't have all privileges, but this is useful for quickly refreshing database
   - mysql -u root -e "GRANT ALL ON cross_sections.* TO 'crosssec_writer'@'localhost';"
 install:
   # Set up schema
   - mysql --defaults-file=test/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < db/cross_sections.sql;
   - pip install -r requirements.txt
 before_script:
-  # Update with [mysql-dynamo] entry in my.cnf
+  # Update with cross section entries in my.cnf
   - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
   - sudo service mysql restart
 script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python test/run_tests.sh
