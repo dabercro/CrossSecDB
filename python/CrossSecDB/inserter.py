@@ -34,7 +34,7 @@ def send_email(samples, cross_sections, updated, source, comments, energy):
             else:
                 samples_string += 'NEW     '
 
-            samples_string += '%s ---> %f\n' % (sample, xs)
+            samples_string += '%s ---> %s\n' % (sample, xs)
 
         email_text = """
 User %s has made the following entries into the cross section database at energy %i TeV:

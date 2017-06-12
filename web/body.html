@@ -9,6 +9,7 @@
     <form>
       Sample Regex: <input type="text" name="sample" value="<?php echo $sample?>">
       Energy: <input type="text" name="energy" value="<?php echo $energy?>">
+      Check for historic info: <input type="checkbox" name="history"<?php if ($history) echo ' checked';?>>
       <input type="hidden" name="browse" value="true">
       <input type="submit">
     </form>
@@ -29,9 +30,14 @@
           if (strpos($cross_sec_string, '.') !== false && strpos($cross_sec_string, 'e') === false)
             $cross_sec_string = rtrim($cross_sec_string, '0');
 
+          $sample_str = $row['sample'];
+
+          if (! $history)
+             $sample_str = '<a href="?sample=' . $sample_str . '&energy=' . $energy . '&browse=true&history=on">' . $sample_str . '</a>';
+
           if ($sample === '' or preg_match('/' . $sample . '/', $row['sample']))
             printf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
-                   $row['sample'], $cross_sec_string, $row['last_updated'],
+                   $sample_str, $cross_sec_string, $row['last_updated'],
                    $row['source'], $row['comments']);
         }
       }

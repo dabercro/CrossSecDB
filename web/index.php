@@ -14,6 +14,7 @@ mysqli_report(MYSQLI_REPORT_STRICT);
 $sample = isset($_GET['sample']) ? $_GET['sample'] : '';
 $inbrowser = isset($_GET['browse']) || $sample === '';
 $energy = isset($_GET['energy']) ? $_GET['energy'] : '13';
+$history = isset($_GET['history']);
 
 // Make sure we use a valid table
 
@@ -21,6 +22,9 @@ if (! in_array($energy, array('7', '8', '13', '14')))
   die('Invalid energy: ' . $energy);
 
 $table = 'xs_' . $energy . 'TeV';
+
+if ($history)
+  $table = $table . '_history';
 
 // Connect to MySQL database
 
@@ -45,7 +49,7 @@ if ($inbrowser) {
   // Matching happens in the body.
 
   $result = $conn->query('SELECT sample, cross_section, last_updated, source, comments FROM ' . 
-                         $table . ' ORDER BY sample');
+                         $table . ' ORDER BY sample ASC, last_updated DESC');
 
   include 'body.html';
 
