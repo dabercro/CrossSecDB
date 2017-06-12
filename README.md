@@ -22,7 +22,7 @@ instead of clicking around Sid's GitHub repos, I would like to type:
 
 (Result is according to PandaCore at the time of writing. Also, all units are assumed to be pb.)
 
-    TODO: Add optional unit definition for input and output.
+TODO: Add optional unit definition for input and output.
 
 In addition to a Python Command Line Interface, functions in Python modules are provided for use.
 A curl interface is also available for anyone who wants their analysis code to access information from outside the Tier-3.
