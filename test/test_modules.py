@@ -5,6 +5,7 @@ Author: Daniel Abercrombie <dabercro@mit.edu>
 """
 
 import os
+import time
 import unittest
 import MySQLdb
 import logging
@@ -127,9 +128,33 @@ class TestInsertRead(unittest.TestCase):
         inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!', cnf=self.cnf)
         self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf), 10.0)
 
+        time.sleep(2)
+
         inserter.put_xsec('TestDataset', 11.0, 'test', cnf=self.cnf)
         self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf), 11.0)
 
+    def test_history(self):
+        """
+        Make sure history is updated properly
+        """
+
+        inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!', cnf=self.cnf)
+
+        time.sleep(2)
+
+        inserter.put_xsec('TestDataset', 11.0, 'test', cnf=self.cnf)
+
+        conn = MySQLdb.connect(read_default_file=self.cnf,
+                               read_default_group='mysql-crosssec-reader',
+                               db='cross_sections')
+        curs = conn.cursor()
+
+        curs.execute('SELECT sample, cross_section, source, comments FROM xs_13TeV_history ORDER BY last_updated DESC')
+
+        self.assertEqual(curs.fetchone(), ('TestDataset', 11.0, 'test', ''))
+        self.assertEqual(curs.fetchone(), ('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!'))
+
+        conn.close()
 
 if __name__ == '__main__':
     unittest.main()
