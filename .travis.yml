@@ -21,9 +21,15 @@ before_install:
 install:
   # Set up schema
   - mysql --defaults-file=test/my.cnf --defaults-group-suffix=-crosssec-writer -Dcross_sections < db/cross_sections.sql;
+  # Get MySQLdb
   - pip install -r requirements.txt
+  # Setup tools
+  - export HOME=`pwd`
+  - touch $HOME/.bashrc
+  - ./setup.sh
+  - source $HOME/.bashrc
 before_script:
   # Update with cross section entries in my.cnf
   - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
   - sudo service mysql restart
-script: PATH=`pwd`/bin:$PATH PYTHONPATH=`pwd`/python test/run_tests.sh
+script: test/run_tests.sh

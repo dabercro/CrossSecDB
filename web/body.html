@@ -2,22 +2,25 @@
 <html lang=en>
   <head>
     <title>Cross Section DB</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
   </head>
 
   <body>
 
-    <form>
-      Sample Regex: <input type="text" name="sample" value="<?php echo $sample?>">
-      Energy: <input type="text" name="energy" value="<?php echo $energy?>">
-      Check for historic info: <input type="checkbox" name="history"<?php if ($history) echo ' checked';?>>
-      <input type="hidden" name="browse" value="true">
-      <input type="submit">
-    </form>
+    <div class="inputs">
+      <form>
+        Sample Regex: <input type="text" name="sample" value="<?php echo $sample?>">
+        Energy: <input type="text" name="energy" value="<?php echo $energy?>">
+        Check for historic info: <input type="checkbox" name="history"<?php if ($history) echo ' checked';?>>
+        <input type="hidden" name="browse" value="true">
+        <input type="submit">
+      </form>
+    </div>
 
     <table border="1" cellpadding="5" align="center">
       <tr>
         <th>Sample</th>
-        <th>Cross Section</th>
+        <th>Cross Section [pb]</th>
         <th>Last Updated</th>
         <th>Source</th>
         <th>Comments</th>

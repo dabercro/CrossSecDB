@@ -20,7 +20,9 @@ instead of clicking around Sid's GitHub repos, I would like to type:
     $ get_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
     61527.0
 
-(Result is according to PandaCore at the time of writing.)
+(Result is according to PandaCore at the time of writing. Also, all units are assumed to be pb.)
+
+    TODO: Add optional unit definition for input and output.
 
 In addition to a Python Command Line Interface, functions in Python modules are provided for use.
 A curl interface is also available for anyone who wants their analysis code to access information from outside the Tier-3.
@@ -125,8 +127,9 @@ calling the script without any arguments or with ``-h`` or ``--help`` as the fir
 
 ## Contributing
 
-Immediate improvements can be found the following way:
+Immediate improvements should be found the following way:
 
     grep -R "TODO" .
 
+Try to format your comments accordingly.
 Please write tests to prove that what you wrote works.
