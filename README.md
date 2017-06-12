@@ -11,6 +11,9 @@ If it's not installed, you can always add it with:
 
     pip install -r CrossSecDB/requirements.txt
 
+If you are on the Tier-3, ``MySQLdb`` should already be installed on your machine.
+You can easily add an existing installation to your path by running the ``setup.sh`` inside the location.
+
 ## Reading Cross Sections
 
 The main motivation for this repository is to provide an exceptionally lazy tool to find cross sections.

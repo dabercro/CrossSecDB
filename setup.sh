@@ -6,7 +6,9 @@
 # Author: Daniel Abercrombie <dabercro@mit.edu>
 #
 
-LOCATION=`dirname $0`
+cd `dirname $0`
+LOCATION=`pwd`
+cd -
 
 if [ -f $HOME/.bashrc ]
 then
