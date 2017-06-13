@@ -45,10 +45,21 @@ if ($conn->connect_error)
 
 if ($inbrowser) {
 
+  // If the history is not viewed, get the list of samples that have a history
+  $updated = array();
+  if (! $history) {
+    $check_history = $conn->query('SELECT sample FROM ' . $table .
+                                  '_history GROUP BY sample HAVING COUNT(*) > 1');
+
+    while($row = $check_history->fetch_assoc())
+      array_push($updated, $row['sample']);
+
+  }
+
   // Get all the entries in the database, and then perform regex matching.
   // Matching happens in the body.
 
-  $result = $conn->query('SELECT sample, cross_section, last_updated, source, comments FROM ' . 
+  $result = $conn->query('SELECT sample, cross_section, last_updated, source, comments FROM ' .
                          $table . ' ORDER BY sample ASC, last_updated DESC');
 
   include 'body.html';
