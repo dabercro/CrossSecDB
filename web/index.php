@@ -48,8 +48,8 @@ if ($inbrowser) {
   // If the history is not viewed, get the list of samples that have a history
   $updated = array();
   if (! $history) {
-    $check_history = $conn->query('SELECT DISTINCT(sample) FROM ' .
-                                  $table . '_history GROUP BY sample HAVING COUNT(*) > 1');
+    $check_history = $conn->query('SELECT sample FROM ' . $table .
+                                  '_history GROUP BY sample HAVING COUNT(*) > 1');
 
     while($row = $check_history->fetch_assoc())
       array_push($updated, $row['sample']);
