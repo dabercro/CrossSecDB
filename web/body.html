@@ -35,7 +35,7 @@
 
           $sample_str = $row['sample'];
 
-          if (! $history)
+          if (! $history && in_array($sample_str, $updated))
              $sample_str = '<a href="?sample=' . $sample_str . '&energy=' . $energy . '&browse=true&history=on">' . $sample_str . '</a>';
 
           if ($sample === '' or preg_match('/' . $sample . '/', $row['sample']))
