@@ -36,7 +36,8 @@ if __name__ == '__main__':
         exit(0)
 
     # Get the comments, if there
-    comments = sys.argv.pop(1).split('=')[1] if sys.argv[1].startswith('--comments=') else ''
+    comments = '='.join(sys.argv.pop(1).split('=')[1:]) \
+        if sys.argv[1].startswith('--comments=') else ''
 
     # Get the source
     source = sys.argv[1]
