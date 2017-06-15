@@ -7,7 +7,7 @@ SAMPLE=$1
 if [ -z $SAMPLE ] || [ "$SAMPLE" = "-h" ] || [ "$SAMPLE" = "--help" ] 
 then
 
-    perldoc $0
+    perldoc -T "$0"
     exit 0
 
 fi
@@ -38,26 +38,23 @@ done
 
 =head1 Usage
 
-web_get_xs.sh SAMPLE [SAMPLE [SAMPLE ...]]
+    web_get_xs.sh SAMPLE [SAMPLE [SAMPLE ...]]
 
 Print the cross sections for a list of samples.
 The output is sent to STDOUT, and separated by newlines.
-
 By default, the samples are read off of the 13 TeV table.
-To change energies, set the environment variable $ENERGY to something different.
+To change energies, set the environment variable C<$ENERGY> to something different.
 
 =head1 Examples
 
-get_xs_web.sh sample_stored_at_MIT
-
-get_xs_web.sh sample1 sample2
-
-ENERGY=8 get_xs_web.sh low_energy_sample_stored_at_MIT
+    web_get_xs.sh sample_stored_at_MIT
+    web_get_xs.sh sample1 sample2
+    ENERGY=8 web_get_xs.sh low_energy_sample_stored_at_MIT
 
 =head1 Important Notes
 
 This should be used from remote locations, such as LXPLUS.
-If running on the T3, it will probably be faster to use get_xs.py.
+If running on the T3, it will probably be faster to use F<get_xs.py>.
 However, the nice part of this script is that is can be run from any
 place with curl installed.
 

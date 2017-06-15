@@ -80,19 +80,19 @@ fi
 =head1 Description
 
 Takes a dataset or list of datasets and outputs a number of put_xs.py commands that will update the central database with the GenXSecAnalyzer results.
-These put_xs.py commands may need to be run in a separate shell since the MySQLdb Python package is not installed in CMSSW,
+These put_xs.py commands may need to be run in a separate shell since the C<MySQLdb> Python package is not installed in CMSSW,
 but you need CMSSW to run the GenXSecAnalyzer.
 
 =head1 Usage
 
-./xsec <DATASET or LIST> [DATASET ...]
+    ./xsec <DATASET or LISTE> [DATASET ...]
 
 DATASET can either be in the standard CMS notation (/Process/Conditions/DataTier) or the MIT notation (Process+Conditions+DataTier).
 This script will translate any MIT notation to the CMS notation before further processing.
 Alternatively, you can give the name of a file as the first parameter that contains a list of datasets in either format.
 
-If the input is individual datasets, the output commands with either be placed in a file called xsec_output.txt.
-Otherwise, the output will be placed in the same location as the input file with '.out' appended to the end of the name.
+If the input is individual datasets, the output commands with either be placed in a file called F<xsec_output.txt>.
+Otherwise, the output will be placed in the same location as the input file with `F<.out>' appended to the end of the name.
 
 After the output is generated, open a new window and run:
 
