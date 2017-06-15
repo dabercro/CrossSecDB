@@ -1,5 +1,7 @@
 # MIT Cross Section DB
 
+[![Build Status](https://travis-ci.org/MiT-HEP/CrossSecDB.svg?branch=master)](https://travis-ci.org/MiT-HEP/CrossSecDB)
+
 This repository holds tools for centralized updating and fetching of cross sections at MIT.
 Analyses throughout CMS have a variety of formats for storing their Monte Carlos cross sections.
 This is an attempt to store these cross sections in a clean, machine-friendly, and documented way.
