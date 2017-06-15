@@ -13,7 +13,7 @@ Up to date details about the script and how to run it can be obtained by running
 
     ./xsec.sh /DM_ScalarWH_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
 
-Open a new terminal or place a Python with `MySQLdb` installed.
+Open a new terminal or place a Python with `MySQLdb` installed in the front of your `$PATH`.
 
     bash xsec_output.txt
 
