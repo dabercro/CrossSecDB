@@ -2,8 +2,6 @@
 
 This simple pair of scripts uses the GenXSecAnalyzer to generate commands
 that will place calculated cross sections into the central database.
-The script itself requires that you use CMSSW to calculate the cross sections.
-The commands must then be run in a separate shell because `MySQLdb` is not installed in CMSSW's Python.
 
 Up to date details about the script and how to run it can be obtained by running.
 

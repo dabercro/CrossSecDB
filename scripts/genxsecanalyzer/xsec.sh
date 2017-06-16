@@ -80,8 +80,6 @@ fi
 =head1 Description
 
 Takes a dataset or list of datasets and outputs a number of put_xs.py commands that will update the central database with the GenXSecAnalyzer results.
-These put_xs.py commands may need to be run in a separate shell since the C<MySQLdb> Python package is not installed in CMSSW,
-but you need CMSSW to run the GenXSecAnalyzer.
 
 =head1 Usage
 

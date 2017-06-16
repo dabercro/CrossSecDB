@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 """
 Author: Daniel Abercrombie <dabercro@mit.edu>
@@ -155,6 +155,50 @@ class TestInsertRead(unittest.TestCase):
         self.assertEqual(curs.fetchone(), ('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!'))
 
         conn.close()
+
+    def test_like(self):
+        """
+        Make sure that the reader.get_samples_like works correctly
+        """
+
+        self.assertFalse(reader.get_samples_like('Fake%', cnf=self.cnf))
+
+        inserter.put_xsec('One1', 11.0, 'test', cnf=self.cnf)
+        inserter.put_xsec('One2', 12.0, 'test', cnf=self.cnf)
+        inserter.put_xsec('Two1', 21.0, 'test', cnf=self.cnf)
+        inserter.put_xsec('Two2', 22.0, 'test', cnf=self.cnf)
+
+        self.assertEqual(reader.get_samples_like('One%', cnf=self.cnf),
+                         ['One1', 'One2'])
+        self.assertEqual(reader.get_samples_like(['One%', 'Two%'], cnf=self.cnf),
+                         ['One1', 'One2', 'Two1', 'Two2'])
+
+    def test_invalid(self):
+        """
+        Make sure zero cross section throws InvalidDataset exception
+        """
+
+        inserter.put_xsec('Invalid', 0.0, 'test', cnf=self.cnf)
+        inserter.put_xsec('Valid', 10.0, 'test', cnf=self.cnf)
+        
+        self.assertRaises(reader.InvalidDataset, reader.get_xsec, 'Invalid', cnf=self.cnf)
+        self.assertRaises(reader.InvalidDataset, reader.get_xsec, ['Valid', 'Invalid'], cnf=self.cnf)
+
+    def test_history_dump(self):
+        """
+        Test the history dump
+        """
+
+        inserter.put_xsec('TestDataset', 10.0, 'A guess I thought of', 'This needs to be updated!', cnf=self.cnf)
+        time.sleep(2)
+        inserter.put_xsec('TestDataset', 11.0, 'test', cnf=self.cnf)
+
+        history = reader.dump_history('TestDataset', cnf=self.cnf)
+
+        self.assertEqual(history.keys(), ['TestDataset'])
+
+        self.assertEqual(history['TestDataset'][0]['cross_section'], 11.0)
+        self.assertEqual(history['TestDataset'][1]['cross_section'], 10.0)
 
 if __name__ == '__main__':
     unittest.main()
