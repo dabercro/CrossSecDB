@@ -41,42 +41,45 @@ from CrossSecDB import inserter
 ENERGY = int(os.environ.get('ENERGY', 13))
 
 
-def main(stdscr, args):
+def main(stdscr, history_dump):
     """
     Parameters:
     -----------
       stdscr (curses screen): The result of curses.initscr().
                               This allows the function to be wrapped.
 
-      args (list): A list of samples to run the revert tool over.
-                   This is not a "star-arg" because a list is a more natural
-                   container to be throwing around in the rest of the script.
+      history_dump (dict): A dictionary of historic information for datasets.
+                           It is the output of CrossSecDB.reader.dump_history.
+
+    Returns:
+    --------
+      A list of tuples containing the information to be used in reverting or invalidating.
+      Each tuple contains (sample, new cross section, new source, new comments, old cross section).
     """
-
-    if not args:
-        print 'No datasets matched your --like parameters.'
-        exit(1)
-
-    history_dump = reader.dump_history(args, energy=ENERGY)
-
-    if not history_dump:
-        print 'No history found for any of your arguments: %s' % args
-        exit(2)
-
-    # This will be a list of tuples of
-    # (sample, new_xs, new_source, new_comments, old_xs)
-    values_to_change = []
 
     # Initialize window
 
+    curses.use_default_colors()
     max_y, max_x = stdscr.getmaxyx()
-    win = stdscr.subwin(max_y - 4, max_x - 8, 2, 4)
-    bottom = max_y - 5
+    master_pad = curses.newpad(max_y, max_x - 8)
+
+    # Historic information is displayed here
+    history_pad = curses.newpad(1024, max_x - 12)
+
+    # User input is displayed here
+    input_pad = curses.newpad(1, max_x - 8)
+    bottom = max_y - 2
+
+    # This will be a list of tuples of
+    # (sample, new_xs, new_source, new_comments, old_xs)
+    output = []
 
     # Go through all the samples in alphabetical order
 
     for key in sorted(history_dump):
-        win.addstr('%s\n' % key, curses.A_STANDOUT)
+        master_pad.erase()
+        master_pad.addstr('%s\n\n' % key, curses.A_STANDOUT)
+        master_pad.addstr('Options from history (use up and down keys to scroll)', curses.A_BOLD)
 
         # We initialize options with the invalidation option
         options = {
@@ -88,34 +91,37 @@ def main(stdscr, args):
         # List all the historic entries
         for index, entry in enumerate(history_dump[key]):
             if not index:
-                win.addstr('\nCurrent entry\n', curses.A_BOLD)
-            win.addstr('%s:' % index, curses.A_BOLD)
-            win.addstr(' Cross Section: %s     Last Updated: %s\n' % \
-                           (entry['cross_section'], entry['last_updated']))
-            win.addstr('\n   Source: %s\n' % entry['source'])
-            win.addstr('\n   Comments: %s\n' % \
-                       ('\n' + ' '*13).join(textwrap.wrap(entry['comments'], max_x - 25)))
+                history_pad.addstr('Current entry\n', curses.A_BOLD)
+            history_pad.addstr('%s:' % index, curses.A_BOLD)
+            history_pad.addstr(' Cross Section: %s     Last Updated: %s\n' % \
+                                   (entry['cross_section'], entry['last_updated']))
+            history_pad.addstr('\n   Source: %s\n' % entry['source'])
+            history_pad.addstr('\n   Comments: %s\n' % \
+                                   ('\n' + ' '*13).join(textwrap.wrap(entry['comments'], max_x - 25)))
 
-            win.addstr('-' * (max_x - 8))
+            history_pad.addstr('-' * (max_x - 12))
 
             options[str(index)] = entry
 
         # Give universal options
-        win.addstr('\ni: Invalidate (set cross section to 0.0)\n', curses.A_BOLD)
-        win.addstr('\nq: Quit revert attempt\n', curses.A_BOLD)
+        master_pad.addstr(bottom - 9, 0, 'Universal Options', curses.A_BOLD)
+        master_pad.addstr(bottom - 7, 2, 'i: ', curses.A_BOLD)
+        master_pad.addstr('Invalidate (set cross section to 0.0)')
+        master_pad.addstr(bottom - 5, 2, 'q: ', curses.A_BOLD)
+        master_pad.addstr('Quit revert attempt')
 
-        win.addstr(bottom, 0, 'Select an option (default 0, the current entry): ',
-                   curses.A_BOLD)
+        input_pad.addstr('Select an option (default 0, the current entry): ',
+                         curses.A_BOLD)
 
-        chosen = win.getstr()
+        master_pad.refresh(0, 0, 2, 4, bottom, max_x - 8)
+        history_pad.refresh(0, 0, 6, 6, bottom - 8, max_x - 12)
+        input_pad.refresh(0, 0, bottom, 4, bottom + 2, max_x - 8)
 
-        win.erase()
-        win.refresh()
+        chosen = input_pad.getstr()
 
-        # If quit, clear the values to change
+        # If quit return nothing to be changed
         if chosen == 'q':
-            values_to_change = []
-            break
+            return []
 
         # Otherwise, add any changes to the list to change
         elif chosen != '0' and chosen in options.keys():
@@ -128,24 +134,23 @@ def main(stdscr, args):
                 source = 'Invalidated by revert_xs.py'
                 comments = 'Dataset entry probably not valid. Set to 0.0.'
 
-            values_to_change.append((key, to_update['cross_section'], source, 
+            output.append((key, to_update['cross_section'], source, 
                                      comments, options['0']['cross_section']))
 
-    if values_to_change:
+    if output:
         win.addstr('Review submission\n\n', curses.A_STANDOUT)
 
-        for sample, xs, _, _, old_xs in values_to_change:
+        for sample, xs, _, _, old_xs in output:
             win.addstr('%s: %s --> %s\n' % (sample, old_xs, xs))
 
         win.addstr(bottom, 0, 'Submit these changes? (y/n, default n): ',
                    curses.A_BOLD)
         submission = win.getstr()
 
-        if submission != 'y':
-            values_to_change = []
+        if submission == 'y':
+            return output
 
-    for sample, xs, source, comments, _ in values_to_change:
-        inserter.put_xsec(sample, xs, source, comments, energy=ENERGY)
+    return []
 
 
 if __name__ == '__main__':
@@ -159,4 +164,17 @@ if __name__ == '__main__':
     args = reader.get_samples_like(sys.argv[2:], energy=ENERGY) \
         if sys.argv[1] == '--like' else sys.argv[1:]
 
-    curses.wrapper(main, args)
+    if not args:
+        print 'No datasets matched your --like parameters.'
+        exit(1)
+
+    history_dump = reader.dump_history(args, energy=ENERGY)
+
+    if not history_dump:
+        print 'No history found for any of your arguments: %s' % args
+        exit(2)
+
+    values_to_change = curses.wrapper(main, history_dump)
+
+    for sample, xs, source, comments, _ in values_to_change:
+        inserter.put_xsec(sample, xs, source, comments, energy=ENERGY)
