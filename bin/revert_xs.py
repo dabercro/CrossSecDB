@@ -113,11 +113,15 @@ def main(stdscr, history_dump):
     # (sample, new_xs, new_source, new_comments, old_xs)
     output = []
 
+    which_dataset = 0
+
     # Go through all the samples in alphabetical order
     for key in sorted(history_dump):
         master_pad.erase()
         history_pad.erase()
-        master_pad.addstr('%s\n\n' % key, curses.A_STANDOUT)
+        which_dataset += 1
+        master_pad.addstr('(%s/%s) ' % (which_dataset, len(history_dump)))
+        master_pad.addstr(' %s \n\n' % key,  curses.A_STANDOUT)
         master_pad.addstr('Options from history (use up and down keys to scroll)', curses.A_BOLD)
 
         # We initialize options with the invalidation option
