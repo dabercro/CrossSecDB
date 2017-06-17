@@ -46,7 +46,8 @@ SOURCE:
 COMMENTS:
 
 %s
-""" % (os.environ.get('USER', '???'), energy, samples_string, source, comments)
+""" % (os.environ.get('USER', '???'), energy, samples_string,
+       '\n\n'.join(set(source)), '\n\n'.join(set(comments)))
 
         msg = MIMEText(email_text)
         msg['Subject'] = 'Cross section update'
@@ -70,11 +71,11 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
       cross_sections (list or float) - A cross section or list of cross sections.
                                        If a list, it must be parallel to the samples list.
 
-      source (str) - Documentation of where the cross section value came from.
-                     Cannot be blank.
+      source (str or list) - Documentation of where the cross section value came from.
+                             Cannot be blank. If a list, must be parallel to samples.
 
-      comments (str) - Additional comments.
-                       (default blank)
+      comments (str or list) - Additional comments. (default blank)
+                               If a list, must be parallel to samples.
 
       cnf (str) - Location of the MySQL connection configuration file.
                   (default None, see XSecConnection.__init__)
@@ -89,13 +90,23 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
         return put_xsec([samples], cross_sections, source, comments, cnf, energy)
     if not isinstance(cross_sections, list):
         return put_xsec(samples, [cross_sections], source, comments, cnf, energy)
+    if not isinstance(source, list):
+        return put_xsec(samples, cross_sections, [source] * len(samples), comments, cnf, energy)
+    if not isinstance(comments, list):
+        return put_xsec(samples, cross_sections, source, [comments] * len(samples), cnf, energy)
 
     # Check inputs
 
-    if not source:
-        raise BadInput('Source of cross sections recommended for proper documentation.')
+    for src in source:
+        if not src:
+            raise BadInput('Source of cross sections recommended for proper documentation.')
     if len(samples) != len(cross_sections):
         raise BadInput('Samples and cross sections are different length lists.')
+    if len(samples) != len(source):
+        raise BadInput('Samples and sources are different length lists.')
+    if len(samples) != len(comments):
+        raise BadInput('Samples and comments are different length lists.')
+
     if cnf and not os.path.exists(cnf):
         raise BadInput('Configuration file %s does not exist' % cnf)
     for xs in cross_sections:
@@ -106,8 +117,8 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
 
     # Put the inputs together
 
-    many_input = [(sample, xs, source, comments) \
-                      for sample, xs in zip(samples, cross_sections)]
+    many_input = [(sample, cross_sections[index], source[index], comments[index]) \
+                      for index, sample in enumerate(samples)]
 
     # Open connection. cnf=None goes to a central location.
 

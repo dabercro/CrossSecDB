@@ -72,6 +72,22 @@ def main(stdscr, history_dump):
 
     # Here is a function for processing input
     def process_input(input_query, confirmation = False):
+        """
+        An input processer that can handle up, down, delete, and a limited number of input keys.
+        Up and down keys scroll the history pad.
+        This function also handles writing the input buffer to the screen.
+
+        Parameters:
+        -----------
+          input_query (str): The query to show at the bottom of the screen.
+
+          confirmation (bool): Tell program if this is the confirmation page or not.
+                               The confirmation page has different formating and user options.
+
+        Returns:
+        --------
+          The input string ultimately submitted by the user.
+        """
         buff = ''
         current_char = 0
         
@@ -87,10 +103,13 @@ def main(stdscr, history_dump):
             valid_chars = range(48, 57) + [105, 113]
 
         while current_char not in [curses.KEY_ENTER, 10, 13]:
+            # There are a limited number of valid options for each screen
             if current_char in valid_chars:
                 buff += chr(current_char)
+            # We can also delete what has been typed so far
             elif buff and current_char in [curses.KEY_BACKSPACE, 127]:
                 buff = buff[:-1]
+            # User can also scroll the history pad
             elif current_char in [curses.KEY_UP, curses.KEY_DOWN]:
                 adjustment = 14 - bottom if current_char == curses.KEY_UP else \
                     (bottom - 14)/2
@@ -100,11 +119,13 @@ def main(stdscr, history_dump):
                                     hist_top, 6,
                                     hist_bot, max_x - 12)
                 
+            # Refresh input pad with every key press
             input_pad.erase()
             input_pad.addstr(input_query, curses.A_BOLD)
             input_pad.addstr(buff)
             input_pad.refresh(0, 0, bottom, 4, bottom + 2, max_x - 8)
 
+            # Wait for next input
             current_char = input_pad.getch()
 
         return buff
@@ -113,11 +134,15 @@ def main(stdscr, history_dump):
     # (sample, new_xs, new_source, new_comments, old_xs)
     output = []
 
+    which_dataset = 0
+
     # Go through all the samples in alphabetical order
     for key in sorted(history_dump):
         master_pad.erase()
         history_pad.erase()
-        master_pad.addstr('%s\n\n' % key, curses.A_STANDOUT)
+        which_dataset += 1
+        master_pad.addstr('(%s/%s) ' % (which_dataset, len(history_dump)))
+        master_pad.addstr(' %s \n\n' % key,  curses.A_STANDOUT)
         master_pad.addstr('Options from history (use up and down keys to scroll)', curses.A_BOLD)
 
         # We initialize options with the invalidation option
@@ -163,8 +188,8 @@ def main(stdscr, history_dump):
             to_update = options[chosen]
             if to_update['cross_section']:
                 source = 'Reverted by revert_xs.py'
-                comments = 'Reverted to match entry from %s by revert_xs.py' %\
-                    to_update['last_updated']
+                comments = 'Reverted to match entry from %s by revert_xs.py. Source change: %s --> %s' % \
+                    (to_update['last_updated'], options['0']['source'], to_update['source'])
             else:
                 source = 'Invalidated by revert_xs.py'
                 comments = 'Dataset entry probably not valid. Set to 0.0.'
@@ -212,6 +237,21 @@ if __name__ == '__main__':
 
     values_to_change = curses.wrapper(main, history_dump)
 
+    samples = []
+    cross_sections = []
+    sources = []
+    commentses = []
+
     for sample, xs, source, comments, old_xs in values_to_change:
         print '%s: %s --> %s' % (sample, old_xs, xs)
-        inserter.put_xsec(sample, xs, source, comments, energy=ENERGY)
+        samples.append(sample)
+        cross_sections.append(xs)
+        sources.append(source)
+        commentses.append(comments)
+
+    if not values_to_change:
+        print 'No changes made.'
+
+    else:
+        inserter.put_xsec(samples, cross_sections, sources,
+                          commentses, energy=ENERGY)
