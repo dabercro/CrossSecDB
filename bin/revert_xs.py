@@ -91,7 +91,7 @@ def main(args):
 
             options[str(index)] = entry
 
-        win.addstr('\ni: Invalidate (set cross section to 0.0)\n\n', curses.A_BOLD)
+        win.addstr('\ni: Invalidate (set cross section to 0.0)\n', curses.A_BOLD)
         win.addstr('\nq: Quit revert attempt\n', curses.A_BOLD)
 
         win.addstr(bottom, 0, 'Select an option (default 0, the current entry): ',
@@ -106,23 +106,24 @@ def main(args):
             values_to_change = []
             break
 
-        elif chosen != '1' and chosen in options.keys():
+        elif chosen != '0' and chosen in options.keys():
             to_update = options[chosen]
             comments = 'Reverted to match entry from %s by revert_xs.py' %\
                 to_update['last_updated'] \
                 if to_update['cross_section'] else \
                 'Dataset entry probably not valid. Set to 0.0.'
-            values_to_change.append(key, to_update['cross_section'], comments,
-                                    options['0']['cross_section'])
+            values_to_change.append((key, to_update['cross_section'], comments,
+                                     options['0']['cross_section']))
 
     if values_to_change:
         win.addstr('Review submission\n\n', curses.A_STANDOUT)
 
-        for sample, xs, _, new_xs in values_to_change:
-            win.addstr('%s: %s --> %s\n' % (sample, xs, new_xs))
+        for sample, xs, _, old_xs in values_to_change:
+            win.addstr('%s: %s --> %s\n' % (sample, old_xs, xs))
 
-        submission = win.addstr(bottom, 0, 'Submit these changes? (y/n, default n): ',
-                                curses.A_BOLD)
+        win.addstr(bottom, 0, 'Submit these changes? (y/n, default n): ',
+                   curses.A_BOLD)
+        submission = win.getstr()
 
         if submission != 'y':
             values_to_change = []
@@ -130,7 +131,7 @@ def main(args):
     curses.endwin()
 
     for sample, xs, comments, _ in values_to_change:
-        reader.put_xsec(sample, xs, 'Reverted by revert_xs.py', comments, energy=ENERGY)
+        inserter.put_xsec(sample, xs, 'Reverted by revert_xs.py', comments, energy=ENERGY)
 
 
 if __name__ == '__main__':
