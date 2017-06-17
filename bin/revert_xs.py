@@ -41,10 +41,13 @@ from CrossSecDB import inserter
 ENERGY = int(os.environ.get('ENERGY', 13))
 
 
-def main(args):
+def main(stdscr, args):
     """
     Parameters:
     -----------
+      stdscr (curses screen): The result of curses.initscr().
+                              This allows the function to be wrapped.
+
       args (list): A list of samples to run the revert tool over.
                    This is not a "star-arg" because a list is a more natural
                    container to be throwing around in the rest of the script.
@@ -66,7 +69,6 @@ def main(args):
 
     # Initialize window
 
-    stdscr = curses.initscr()
     max_y, max_x = stdscr.getmaxyx()
     win = stdscr.subwin(max_y - 4, max_x - 8, 2, 4)
     bottom = max_y - 5
@@ -142,8 +144,6 @@ def main(args):
         if submission != 'y':
             values_to_change = []
 
-    curses.endwin()
-
     for sample, xs, source, comments, _ in values_to_change:
         inserter.put_xsec(sample, xs, source, comments, energy=ENERGY)
 
@@ -156,13 +156,7 @@ if __name__ == '__main__':
 
     # This crashes when trying to write too much to the screen
     # TODO: Change the window to a pad? and give ways to scroll to prevent crashes on overflow.
-    try:
-        if sys.argv[1] == '--like':
-            main(reader.get_samples_like(sys.argv[2:], energy=ENERGY))
+    args = reader.get_samples_like(sys.argv[2:], energy=ENERGY) \
+        if sys.argv[1] == '--like' else sys.argv[1:]
 
-        else:
-            main(sys.argv[1:])
-
-    except Exception as e:
-        print e
-        curses.endwin()
+    curses.wrapper(main, args)
