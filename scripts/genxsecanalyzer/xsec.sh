@@ -83,7 +83,7 @@ Takes a dataset or list of datasets and outputs a number of put_xs.py commands t
 
 =head1 Usage
 
-    ./xsec <DATASET or LISTE> [DATASET ...]
+    ./xsec <DATASET or LIST> [DATASET ...]
 
 DATASET can either be in the standard CMS notation (/Process/Conditions/DataTier) or the MIT notation (Process+Conditions+DataTier).
 This script will translate any MIT notation to the CMS notation before further processing.
