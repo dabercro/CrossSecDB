@@ -72,6 +72,22 @@ def main(stdscr, history_dump):
 
     # Here is a function for processing input
     def process_input(input_query, confirmation = False):
+        """
+        An input processer that can handle up, down, delete, and a limited number of input keys.
+        Up and down keys scroll the history pad.
+        This function also handles writing the input buffer to the screen.
+
+        Parameters:
+        -----------
+          input_query (str): The query to show at the bottom of the screen.
+
+          confirmation (bool): Tell program if this is the confirmation page or not.
+                               The confirmation page has different formating and user options.
+
+        Returns:
+        --------
+          The input string ultimately submitted by the user.
+        """
         buff = ''
         current_char = 0
         
@@ -87,10 +103,13 @@ def main(stdscr, history_dump):
             valid_chars = range(48, 57) + [105, 113]
 
         while current_char not in [curses.KEY_ENTER, 10, 13]:
+            # There are a limited number of valid options for each screen
             if current_char in valid_chars:
                 buff += chr(current_char)
+            # We can also delete what has been typed so far
             elif buff and current_char in [curses.KEY_BACKSPACE, 127]:
                 buff = buff[:-1]
+            # User can also scroll the history pad
             elif current_char in [curses.KEY_UP, curses.KEY_DOWN]:
                 adjustment = 14 - bottom if current_char == curses.KEY_UP else \
                     (bottom - 14)/2
@@ -100,11 +119,13 @@ def main(stdscr, history_dump):
                                     hist_top, 6,
                                     hist_bot, max_x - 12)
                 
+            # Refresh input pad with every key press
             input_pad.erase()
             input_pad.addstr(input_query, curses.A_BOLD)
             input_pad.addstr(buff)
             input_pad.refresh(0, 0, bottom, 4, bottom + 2, max_x - 8)
 
+            # Wait for next input
             current_char = input_pad.getch()
 
         return buff
@@ -216,6 +237,21 @@ if __name__ == '__main__':
 
     values_to_change = curses.wrapper(main, history_dump)
 
+    samples = []
+    cross_sections = []
+    sources = []
+    commentses = []
+
     for sample, xs, source, comments, old_xs in values_to_change:
         print '%s: %s --> %s' % (sample, old_xs, xs)
-        inserter.put_xsec(sample, xs, source, comments, energy=ENERGY)
+        samples.append(sample)
+        cross_sections.append(xs)
+        sources.append(source)
+        commentses.append(comments)
+
+    if not values_to_change:
+        print 'No changes made.'
+
+    else:
+        inserter.put_xsec(samples, cross_sections, sources,
+                          commentses, energy=ENERGY)
