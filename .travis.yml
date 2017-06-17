@@ -32,4 +32,7 @@ before_script:
   # Update with cross section entries in my.cnf
   - sudo bash -c "cat test/my.cnf >> /etc/mysql/my.cnf"
   - sudo service mysql restart
+  # Need to use virtualenv python for Travis-CI
+  # But we usually want to use the system python to avoid conflicts with CMSSW
+  - sed -i 's@#! /usr/bin/python@#! /usr/bin/env python@g' */*.py
 script: test/run_tests.sh

@@ -20,12 +20,14 @@ do
 
     # Check the results
 
-    if [ $? -ne 0 ]
+    RESULT=$?
+
+    if [ $RESULT -ne 0 ]
     then
 
         COUNTFAIL=$((COUNTFAIL + 1))
         tput setaf 1 2> /dev/null
-        echo "FAILED: $TESTSCRIPT"
+        echo "FAILED: $TESTSCRIPT with exit code $RESULT"
 
     else
 

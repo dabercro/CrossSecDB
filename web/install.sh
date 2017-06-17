@@ -5,7 +5,7 @@ CHECKARG=$1
 if [ ! -z $CHECKARG ]
 then
 
-    perldoc "$0"
+    perldoc -T "$0"
     exit 0
 
 fi
@@ -34,13 +34,13 @@ done
 =head1 CrossSecDB webpage installer
 
 Simply installs all contents of this directory that are not this file
-into your $HOME/public_html/CrossSecDB location.
+into your F<$HOME/public_html/CrossSecDB> location.
 
 Calling the script with an argument will bring up this help menu.
 
 =head1 Author
 
-Daniel Abercrombie
+Daniel Abercrombie <dabercro@mit.edu>
 
 =cut
  

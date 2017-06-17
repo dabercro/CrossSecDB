@@ -1,5 +1,7 @@
 # MIT Cross Section DB
 
+[![Build Status](https://travis-ci.org/MiT-HEP/CrossSecDB.svg?branch=master)](https://travis-ci.org/MiT-HEP/CrossSecDB)
+
 This repository holds tools for centralized updating and fetching of cross sections at MIT.
 Analyses throughout CMS have a variety of formats for storing their Monte Carlos cross sections.
 This is an attempt to store these cross sections in a clean, machine-friendly, and documented way.
@@ -13,6 +15,12 @@ If it's not installed, you can always add it with:
 
 If you are on the Tier-3, ``MySQLdb`` should already be installed on your machine.
 You can easily add an existing installation to your path by running the ``setup.sh`` inside the location.
+
+### Note on running inside CMSSW environment
+
+Note, all the python executables use the system Python, ``/usr/bin/python``, in the shebang.
+This way, you will be able to access the command line tools while using CMSSW.
+However, using the Python modules within your own script that is using the CMSSW may fail since CMSSW does not have ``MySQLdb`` installed.
 
 ## Reading Cross Sections
 
@@ -127,6 +135,17 @@ There's also a command line interface that can be used the following way:
 
 More usage information (like how to access alternate energies) can be gathered by
 calling the script without any arguments or with ``-h`` or ``--help`` as the first argument.
+
+### Reverting Cross Sections
+
+Cross sections can also be "updated" by reverting to old cross sections.
+Use ``revert_xs.py`` and follow the instructions on the screen.
+Here are some examples on how to call it.
+
+    revert_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+    ENERGY=8 revert_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+    revert_xs.py WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1
+    revert_xs.py --like 'ST_%'
 
 ## Contributing
 
