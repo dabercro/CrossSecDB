@@ -46,7 +46,8 @@ SOURCE:
 COMMENTS:
 
 %s
-""" % (os.environ.get('USER', '???'), energy, samples_string, source, comments)
+""" % (os.environ.get('USER', '???'), energy, samples_string,
+       '\n\n'.join(set(source)), '\n\n'.join(set(comments)))
 
         msg = MIMEText(email_text)
         msg['Subject'] = 'Cross section update'
