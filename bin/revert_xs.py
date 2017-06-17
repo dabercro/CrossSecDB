@@ -163,8 +163,8 @@ def main(stdscr, history_dump):
             to_update = options[chosen]
             if to_update['cross_section']:
                 source = 'Reverted by revert_xs.py'
-                comments = 'Reverted to match entry from %s by revert_xs.py' %\
-                    to_update['last_updated']
+                comments = 'Reverted to match entry from %s by revert_xs.py. Source change: %s --> %s' % \
+                    (to_update['last_updated'], options['0']['source'], to_update['source'])
             else:
                 source = 'Invalidated by revert_xs.py'
                 comments = 'Dataset entry probably not valid. Set to 0.0.'
