@@ -195,15 +195,15 @@ def main(stdscr, history_dump):
                 comments = 'Dataset entry probably not valid. Set to 0.0.'
 
             output.append((key, to_update['cross_section'], to_update.get('uncertainty', 0.0), source, 
-                                     comments, options['0']['cross_section']))
+                           comments, options['0']['cross_section'], options['0']['uncertainty']))
 
     if output:
         master_pad.erase()
         history_pad.erase()
         master_pad.addstr('Review submission\n\n', curses.A_STANDOUT)
 
-        for sample, xs, unc,_, _, old_xs in output:
-            history_pad.addstr('%s: %s --> %s +- %s\n' % (sample, old_xs, xs, unc))
+        for sample, xs, unc,_, _, old_xs, old_unc in output:
+            history_pad.addstr('%s: %s +- %s ===> %s +- %s\n' % (sample, old_xs, old_unc, xs, unc))
 
         master_pad.refresh(0, 0, 2, 4, bottom, max_x - 8)
         history_pad.refresh(0, 0, 4, 6, bottom - 2, max_x - 12)
@@ -243,8 +243,8 @@ if __name__ == '__main__':
     commentses = []
     uncerts = []
 
-    for sample, xs, unc, source, comments, old_xs in values_to_change:
-        print '%s: %s --> %s' % (sample, old_xs, xs)
+    for sample, xs, unc, source, comments, old_xs, old_unc in values_to_change:
+        print '%s: %s +- %s ===> %s +- %s' % (sample, old_xs, old_unc, xs, unc)
         samples.append(sample)
         cross_sections.append(xs)
         sources.append(source)
