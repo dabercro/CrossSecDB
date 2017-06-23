@@ -1,3 +1,18 @@
+<?php
+
+// Some useful function
+
+function strip_zeros($number) {
+
+  $output = (string)$number;
+  if (strpos($output, '.') !== false && strpos($output, 'e') === false)
+    $output = rtrim($output, '0');
+
+  return $output;
+
+}
+
+?>
 <!DOCTYPE HTML>
 <html lang=en>
   <head>
@@ -29,9 +44,8 @@
       if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
 
-          $cross_sec_string = (string)$row['cross_section'];
-          if (strpos($cross_sec_string, '.') !== false && strpos($cross_sec_string, 'e') === false)
-            $cross_sec_string = rtrim($cross_sec_string, '0');
+          $cross_sec_string = strip_zeros($row['cross_section']);
+          $unc_string = strip_zeros($row['uncertainty']);
 
           $sample_str = $row['sample'];
 
@@ -39,8 +53,8 @@
              $sample_str = '<a href="?sample=' . $sample_str . '&energy=' . $energy . '&browse=true&history=on">' . $sample_str . '</a>';
 
           if ($sample === '' or preg_match('/' . $sample . '/', $row['sample']))
-            printf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
-                   $sample_str, $cross_sec_string, $row['last_updated'],
+            printf('<tr><td>%s</td><td>%s &plusmn; %s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                   $sample_str, $cross_sec_string, $unc_string, $row['last_updated'],
                    $row['source'], $row['comments']);
         }
       }

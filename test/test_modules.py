@@ -5,6 +5,7 @@ Author: Daniel Abercrombie <dabercro@mit.edu>
 """
 
 import os
+import sys
 import time
 import unittest
 import MySQLdb
@@ -12,8 +13,6 @@ import logging
 
 from CrossSecDB import inserter
 from CrossSecDB import reader
-
-# This is temporary until the test passes
 
 logger = logging.getLogger(__name__)
 
@@ -200,5 +199,27 @@ class TestInsertRead(unittest.TestCase):
         self.assertEqual(history['TestDataset'][0]['cross_section'], 11.0)
         self.assertEqual(history['TestDataset'][1]['cross_section'], 10.0)
 
+    def test_uncertainties(self):
+        """
+        This is a test for the uncertainty fetching and retrieval.
+        """
+        # Try with relative uncertainty
+        inserter.put_xsec('TestDataset', 50.0, 'test', cnf=self.cnf,
+                          uncertainties=0.2, unc_type=inserter.REL_UNCERTAINTY)
+        self.assertEqual(reader.get_xsec('TestDataset', cnf=self.cnf, get_uncert=True), (50.0, 10.0))
+
+        # We can also put in parallel lists of uncertainties
+        inserter.put_xsec(['Test1', 'Test2'], [10.0, 20.0], 'test', cnf=self.cnf, uncertainties=[2.0, 3.0])
+        self.assertEqual(reader.get_xsec('Test1', cnf=self.cnf, get_uncert=True), (10.0, 2.0))
+        self.assertEqual(reader.get_xsec('Test2', cnf=self.cnf, get_uncert=True), (20.0, 3.0))
+
+        self.assertEqual(reader.get_xsec(['TestDataset', 'Test1', 'Test2'], cnf=self.cnf, get_uncert=True),
+                         [(50.0, 10.0), (10.0, 2.0), (20.0, 3.0)])
+
+
 if __name__ == '__main__':
+    
+    if len(sys.argv) > 1:
+        logging.basicConfig(level=logging.DEBUG)
+
     unittest.main()
