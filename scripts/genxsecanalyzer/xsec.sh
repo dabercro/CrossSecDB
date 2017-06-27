@@ -50,8 +50,9 @@ get_xsec () {
 
     OUTPUT=$(cmsRun genxsec.py $FILES 2>&1 | grep "final cross section")
     XS=$(echo $OUTPUT | awk '{ print $7 }')
+    XSERR=$(echo $OUTPUT | awk '{ print $9 }')
 
-    echo "put_xs.py --comments=\"./xsec.sh $CMSNAME ---> $OUTPUT\" \"unmodified GenXSecAnalyzer\" `echo $DATASET | awk -F '/' '{ print $2 }'` $XS" >> $OUTPUT_FILE
+    echo "put_xs.py --comments=\"./xsec.sh $CMSNAME ---> $OUTPUT\" \"unmodified GenXSecAnalyzer\" `echo $DATASET | awk -F '/' '{ print $2 }'` $XS+-$XSERR" >> $OUTPUT_FILE
 
 }
 
@@ -90,7 +91,7 @@ This script will translate any MIT notation to the CMS notation before further p
 Alternatively, you can give the name of a file as the first parameter that contains a list of datasets in either format.
 
 If the input is individual datasets, the output commands with either be placed in a file called F<xsec_output.txt>.
-Otherwise, the output will be placed in the same location as the input file with `F<.out>' appended to the end of the name.
+Otherwise, the output will be placed in the same location as the input file with 'F<.out>' appended to the end of the name.
 
 After the output is generated, open a new window and run:
 
