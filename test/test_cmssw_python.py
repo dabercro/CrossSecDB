@@ -94,5 +94,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         logging.basicConfig(level=logging.DEBUG)
 
-    if sys.version_info.minor != 6:
+    if sys.version_info[1] != 6:
         unittest.main()
