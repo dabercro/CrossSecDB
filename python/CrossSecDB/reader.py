@@ -2,7 +2,11 @@
 Author: Daniel Abercrombie <dabercro@mit.edu>
 """
 
-from . import XSecConnection
+import logging
+
+from .inserter import XSecConnection
+
+logger = logging.getLogger(__name__)
 
 class InvalidDataset(Exception):
     pass
@@ -16,7 +20,7 @@ def dump_history(samples, cnf=None, energy=13):
 
     Parameters:
     -----------
-      samples (list or str) - A list of samples or a single sample to get cross sections for.
+n      samples (list or str) - A list of samples or a single sample to get cross sections for.
 
       cnf (str) - Location of the MySQL connection configuration file.
                   (default None, see XSecConnection.__init__)
@@ -47,7 +51,7 @@ def dump_history(samples, cnf=None, energy=13):
     output = {}
 
     query = """
-            SELECT cross_section, last_updated, source, comments
+            SELECT cross_section, last_updated, source, comments, uncertainty
             FROM xs_{0}TeV_history WHERE sample=%s
             ORDER BY last_updated DESC
             """.format(energy)
@@ -60,7 +64,8 @@ def dump_history(samples, cnf=None, energy=13):
                 'cross_section': result[0],
                 'last_updated': result[1],
                 'source': result[2],
-                'comments': result[3]
+                'comments': result[3],
+                'uncertainty': result[4]
             } for result in conn.curs.fetchall()
         ]
 
@@ -109,7 +114,7 @@ def get_samples_like(patterns, cnf=None, energy=13, history=True):
     return output
 
 
-def get_xsec(samples, cnf=None, energy=13):
+def get_xsec(samples, cnf=None, energy=13, get_uncert=False):
     """
     Get the cross sections from the central database.
     Can be a list or a single sample.
@@ -124,14 +129,18 @@ def get_xsec(samples, cnf=None, energy=13):
       energy (int) - Energy to determine the table to look up cross sections from.
                      (default 13)
 
+      get_uncert (bool) - Determines whether or not to fetch uncertainties from the database too.
+
     Returns:
     --------
       By default, a list of cross sections, parallel to the list of samples.
       If the list is only one element long, or samples was not a list, just a float is returned.
+      If get_uncertainties is set to True, this list is a list of tuples with cross section and absolute uncertainty.
+      Or the lone float is a tuple.
     """
 
     if not isinstance(samples, list):
-        return get_xsec([samples], cnf, energy)
+        samples = [samples]
 
     # Connect. Default to Dan's xsec configuration on the T3.
     # Otherwise, use the passed cnf or the environment variable XSECCONF
@@ -139,17 +148,24 @@ def get_xsec(samples, cnf=None, energy=13):
     conn = XSecConnection(write=False, cnf=cnf)
 
     output = []
-    query = 'SELECT cross_section FROM xs_{0}TeV WHERE sample=%s'.format(energy)
+
+    values = 'cross_section, uncertainty' if get_uncert else 'cross_section'
+    query = 'SELECT {0} FROM xs_{1}TeV WHERE sample=%s'.format(values, energy)
 
     for sample in samples:
+        logger.debug('About to execute: %s \nwith %s', query, sample)
         conn.curs.execute(query, (sample,))
 
         check = conn.curs.fetchone()
+        logger.debug('Result: %s', check)
 
         if check is None:
             raise NoMatchingDataset('No matching dataset found for sample %s at energy %s TeV' % (sample, energy))
 
-        output.append(check[0])
+        if len(check) == 1:
+            output.append(check[0])
+        else:
+            output.append(check)
 
     # If there is a zero in the output, that means it is invalid
     if False in output:

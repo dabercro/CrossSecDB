@@ -6,17 +6,50 @@ import os
 import logging
 import subprocess
 import socket
+import MySQLdb
 
 from email.mime.text import MIMEText
 
-from . import XSecConnection
-
 logger = logging.getLogger(__name__)
+
+# Some enums
+ABS_UNCERTAINTY, REL_UNCERTAINTY = range(2)
 
 class BadInput(Exception):
     pass
 
-def send_email(samples, cross_sections, updated, source, comments, energy):
+class XSecConnection(object):
+    """
+    A simple short-lived connector for cross section database
+    """
+
+    def __init__(self, write=False, cnf=None):
+        """
+        Parameters:
+        -----------
+          write (bool) - Lets the connection know what permissions to log onto the server with.
+                         (default False)
+
+          cnf (str) - The location of the configuration file with the default login parameters.
+                      The default location should be maintained to log onto a central server.
+        """
+
+        default_file = cnf or os.environ.get('XSECCONF', '/home/dabercro/xsec.cnf')
+        which_user = 'writer' if write else 'reader'
+
+        self.logger = logging.getLogger('Connection_%s_%s' % (which_user, default_file))
+
+        self.logger.debug('Opening connection')
+        self.conn = MySQLdb.connect(read_default_file=default_file,
+                                    read_default_group='mysql-crosssec-%s' % which_user,
+                                    db='cross_sections')
+        self.curs = self.conn.cursor()
+
+    def __del__(self):
+        self.logger.debug('Closing connection')
+        self.conn.close()
+
+def send_email(samples, cross_sections, uncertainties, updated, source, comments, energy):
     """
     Sends email reporting what was added to the database.
     """
@@ -28,13 +61,13 @@ def send_email(samples, cross_sections, updated, source, comments, energy):
     if emails:
 
         samples_string = '\n'
-        for sample, xs in zip(samples, cross_sections):
+        for sample, xs in zip(samples, zip(cross_sections, uncertainties)):
             if sample in updated:
                 samples_string += 'UPDATED '
             else:
                 samples_string += 'NEW     '
 
-            samples_string += '%s ---> %s\n' % (sample, xs)
+            samples_string += '%s ---> %s +- %s\n' % (sample, xs[0], xs[1])
 
         email_text = """
 User %s has made the following entries into the cross section database at energy %i TeV:
@@ -58,7 +91,8 @@ COMMENTS:
         proc.communicate(input=msg.as_string())
 
 
-def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
+def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13,
+             uncertainties=None, unc_type=ABS_UNCERTAINTY):
     """
     Places samples with parallel list, cross_sections into database.
     Source of the cross sections must be given.
@@ -82,18 +116,37 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
 
       energy (int) - Energy to determine the table to insert the cross sections into.
                      (default 13)
+
+      uncertainties (list or float) - These are uncertainties in the cross sections.
+                                      If not given, they are inserted as 0.0.
+                                      If a list, it must be parallel to the samples list.
+
+      unc_type (enum) - The type of uncertainty that is being inserted. Valid options:
+                        * ABS_UNCERTAINTY: For an absolute uncertainty in the cross section
+                        * REL_UNCERTAINTY: For a relative uncertainty where 1.0 is 100%
     """
 
     # Pass lists to keep rest of logic clean
 
     if not isinstance(samples, list):
-        return put_xsec([samples], cross_sections, source, comments, cnf, energy)
+        samples = [samples]
     if not isinstance(cross_sections, list):
-        return put_xsec(samples, [cross_sections], source, comments, cnf, energy)
+        cross_sections = [cross_sections]
     if not isinstance(source, list):
-        return put_xsec(samples, cross_sections, [source] * len(samples), comments, cnf, energy)
+        source = [source] * len(samples)
     if not isinstance(comments, list):
-        return put_xsec(samples, cross_sections, source, [comments] * len(samples), cnf, energy)
+        comments = [comments] * len(samples)
+
+    # Check the uncertainties input
+    if uncertainties is None:
+        uncertainties = [0.0] * len(samples)
+    elif not isinstance(uncertainties, list):
+        uncertainties = [uncertainties]
+
+    # If inputting relative uncertainty, replace with absolute
+    if unc_type == REL_UNCERTAINTY:
+        uncertainties = [xs * unc for xs, unc in zip(cross_sections, uncertainties)]
+
 
     # Check inputs
 
@@ -117,7 +170,7 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
 
     # Put the inputs together
 
-    many_input = [(sample, cross_sections[index], source[index], comments[index]) \
+    many_input = [(sample, cross_sections[index], uncertainties[index], source[index], comments[index]) \
                       for index, sample in enumerate(samples)]
 
     # Open connection. cnf=None goes to a central location.
@@ -125,8 +178,8 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
     conn = XSecConnection(write=True, cnf=cnf)
 
     statement = """
-                REPLACE INTO xs_{0}TeV (sample, cross_section, last_updated, source, comments)
-                VALUES (%s, %s, NOW(), %s, %s)
+                REPLACE INTO xs_{0}TeV (sample, cross_section, uncertainty, last_updated, source, comments)
+                VALUES (%s, %s, %s, NOW(), %s, %s)
                 """.format(energy)
 
     logger.debug('About to execute\n%s\nwith\n%s', statement, many_input)
@@ -160,4 +213,4 @@ def put_xsec(samples, cross_sections, source, comments='', cnf=None, energy=13):
 
     # Send an email
 
-    send_email(samples, cross_sections, updated, source, comments, energy)
+    send_email(samples, cross_sections, uncertainties, updated, source, comments, energy)

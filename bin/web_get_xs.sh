@@ -24,7 +24,7 @@ fi
 while [ "$SAMPLE" != "" ]
 do
 
-    curl "http://t3serv001.mit.edu/~dabercro/CrossSecDB/?sample=$SAMPLE&energy=$ENERGY"
+    curl "http://t3serv001.mit.edu/~dabercro/CrossSecDB/?sample=$SAMPLE&energy=$ENERGY" 2> /dev/null
     printf "\n"        # curl will not print the new line for us
 
     shift              # Get the next sample

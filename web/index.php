@@ -59,7 +59,7 @@ if ($inbrowser) {
   // Get all the entries in the database, and then perform regex matching.
   // Matching happens in the body.
 
-  $result = $conn->query('SELECT sample, cross_section, last_updated, source, comments FROM ' .
+  $result = $conn->query('SELECT sample, cross_section, uncertainty, last_updated, source, comments FROM ' .
                          $table . ' ORDER BY sample ASC, last_updated DESC');
 
   include 'body.html';

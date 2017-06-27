@@ -157,8 +157,8 @@ def main(stdscr, history_dump):
             if not index:
                 history_pad.addstr('Current entry\n', curses.A_BOLD)
             history_pad.addstr('%s:' % index, curses.A_BOLD)
-            history_pad.addstr(' Cross Section: %s     Last Updated: %s\n' % \
-                                   (entry['cross_section'], entry['last_updated']))
+            history_pad.addstr(' Cross Section: %s +- %s     Last Updated: %s\n' % \
+                                   (entry['cross_section'], entry['uncertainty'], entry['last_updated']))
             history_pad.addstr('\n   Source: %s\n' % entry['source'])
             history_pad.addstr('\n   Comments: %s\n' % \
                                    ('\n' + ' '*13).join(textwrap.wrap(entry['comments'], max_x - 25)))
@@ -194,16 +194,16 @@ def main(stdscr, history_dump):
                 source = 'Invalidated by revert_xs.py'
                 comments = 'Dataset entry probably not valid. Set to 0.0.'
 
-            output.append((key, to_update['cross_section'], source, 
-                                     comments, options['0']['cross_section']))
+            output.append((key, to_update['cross_section'], to_update.get('uncertainty', 0.0), source, 
+                           comments, options['0']['cross_section'], options['0']['uncertainty']))
 
     if output:
         master_pad.erase()
         history_pad.erase()
         master_pad.addstr('Review submission\n\n', curses.A_STANDOUT)
 
-        for sample, xs, _, _, old_xs in output:
-            history_pad.addstr('%s: %s --> %s\n' % (sample, old_xs, xs))
+        for sample, xs, unc,_, _, old_xs, old_unc in output:
+            history_pad.addstr('%s: %s +- %s ===> %s +- %s\n' % (sample, old_xs, old_unc, xs, unc))
 
         master_pad.refresh(0, 0, 2, 4, bottom, max_x - 8)
         history_pad.refresh(0, 0, 4, 6, bottom - 2, max_x - 12)
@@ -241,17 +241,19 @@ if __name__ == '__main__':
     cross_sections = []
     sources = []
     commentses = []
+    uncerts = []
 
-    for sample, xs, source, comments, old_xs in values_to_change:
-        print '%s: %s --> %s' % (sample, old_xs, xs)
+    for sample, xs, unc, source, comments, old_xs, old_unc in values_to_change:
+        print '%s: %s +- %s ===> %s +- %s' % (sample, old_xs, old_unc, xs, unc)
         samples.append(sample)
         cross_sections.append(xs)
         sources.append(source)
         commentses.append(comments)
+        uncerts.append(unc)
 
     if not values_to_change:
         print 'No changes made.'
 
     else:
         inserter.put_xsec(samples, cross_sections, sources,
-                          commentses, energy=ENERGY)
+                          commentses, energy=ENERGY, uncertainties=uncerts)

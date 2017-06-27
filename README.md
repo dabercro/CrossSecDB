@@ -21,6 +21,9 @@ You can easily add an existing installation to your path by running the ``setup.
 Note, all the python executables use the system Python, ``/usr/bin/python``, in the shebang.
 This way, you will be able to access the command line tools while using CMSSW.
 However, using the Python modules within your own script that is using the CMSSW may fail since CMSSW does not have ``MySQLdb`` installed.
+For reading the database, make the following replacement in the examples:
+
+``from CrossSecDB.reader import get_xsec`` with ``from CrossSecDB.reader_cmssw import get_xsec``
 
 ## Reading Cross Sections
 

@@ -5,6 +5,7 @@
 CREATE TEMPORARY TABLE template (
   sample VARCHAR(144) NOT NULL,
   cross_section DOUBLE UNSIGNED NOT NULL,
+  uncertainty DOUBLE DEFAULT 0.0,
   last_updated DATETIME NOT NULL,
   source VARCHAR(512) NOT NULL,
   comments VARCHAR(2048),
