@@ -4,7 +4,7 @@ Author: Daniel Abercrombie <dabercro@mit.edu>
 
 import logging
 
-from . import XSecConnection
+from .inserter import XSecConnection
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ def dump_history(samples, cnf=None, energy=13):
 
     Parameters:
     -----------
-      samples (list or str) - A list of samples or a single sample to get cross sections for.
+n      samples (list or str) - A list of samples or a single sample to get cross sections for.
 
       cnf (str) - Location of the MySQL connection configuration file.
                   (default None, see XSecConnection.__init__)
