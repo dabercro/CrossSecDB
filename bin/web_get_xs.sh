@@ -21,16 +21,30 @@ then
 
 fi
 
+exitcode=0
+
 while [ "$SAMPLE" != "" ]
 do
 
-    curl "http://t3serv001.mit.edu/~dabercro/CrossSecDB/?sample=$SAMPLE&energy=$ENERGY" 2> /dev/null
-    printf "\n"        # curl will not print the new line for us
+    # Get the result from the database
+    output=`curl "http://t3serv001.mit.edu/~dabercro/CrossSecDB/?sample=$SAMPLE&energy=$ENERGY" 2> /dev/null`
+
+    # Check that the output is valid
+    # If not, increment the exit code
+    if grep ERROR <(echo $output) > /dev/null
+    then
+        exitcode=$(($exitcode + 1))
+    fi
+
+    # Echo the output, no matter what it was
+    echo $output
 
     shift              # Get the next sample
     SAMPLE=$1
 
 done
+
+exit $exitcode
 
 : <<EOF
 
